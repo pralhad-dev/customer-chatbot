@@ -47,7 +47,7 @@ public class ChatBotService {
             // Save user message
             saveUserMessage(session.getSessionId(), request.getMessage());
 
-            // 🔥 KAFKA: Send user message to Kafka
+            //  KAFKA: Send user message to Kafka
             kafkaProducerService.sendChatMessage(
                     session.getSessionId(),
                     request.getMessage(),
@@ -63,7 +63,7 @@ public class ChatBotService {
             // Save bot response
             saveBotMessage(session.getSessionId(), response.getBotResponse());
 
-            // 🔥 KAFKA: Send bot response to Kafka
+            // KAFKA: Send bot response to Kafka
             kafkaProducerService.sendChatMessage(
                     session.getSessionId(),
                     response.getBotResponse(),
@@ -73,7 +73,7 @@ public class ChatBotService {
                     "TEXT"
             );
 
-            // 🔥 KAFKA: Send analytics event
+            // KAFKA: Send analytics event
             String intent = detectIntent(request.getMessage());
             kafkaProducerService.sendAnalyticsEvent(
                     session.getSessionId(),
@@ -112,7 +112,7 @@ public class ChatBotService {
         saveBotMessage(savedSession.getSessionId(),
                 "Hello! I'm your customer support assistant. How can I help you today?");
 
-        // 🔥 KAFKA: Send session created event
+        // KAFKA: Send session created event
         kafkaProducerService.sendSessionEvent(
                 savedSession.getSessionId(),
                 request.getUserId(),
@@ -120,7 +120,7 @@ public class ChatBotService {
                 "ACTIVE"
         );
 
-        // 🔥 KAFKA: Send analytics event
+        // KAFKA: Send analytics event
         kafkaProducerService.sendAnalyticsEvent(
                 savedSession.getSessionId(),
                 "SESSION_STARTED",
@@ -185,7 +185,7 @@ public class ChatBotService {
             response.setQuickReplies(getContactQuickReplies());
         }
         else if (KEYWORD_PATTERNS.get("thanks").matcher(lowerMessage).find()) {
-            response.setBotResponse("You're welcome! 😊 I'm glad I could help. Is there anything else you'd like to know?");
+            response.setBotResponse("You're welcome! I'm glad I could help. Is there anything else you'd like to know?");
             response.setQuickReplies(getMainQuickReplies());
         }
         else if (KEYWORD_PATTERNS.get("bye").matcher(lowerMessage).find()) {
@@ -194,7 +194,7 @@ public class ChatBotService {
             chatSessionRepository.save(session);
             response.setStatus("COMPLETED");
 
-            // 🔥 KAFKA: Send session ended event
+            // KAFKA: Send session ended event
             kafkaProducerService.sendSessionEvent(
                     session.getSessionId(),
                     session.getUserId(),
@@ -212,15 +212,15 @@ public class ChatBotService {
 
     private String getPricingResponse() {
         return "Here's our pricing information:\n\n" +
-                "💰 *Basic Plan:* $9.99/month\n" +
+                " *Basic Plan:* $9.99/month\n" +
                 "   - 10GB Storage\n" +
                 "   - Basic Support\n" +
                 "   - 5 Users\n\n" +
-                "🚀 *Pro Plan:* $19.99/month\n" +
+                " *Pro Plan:* $19.99/month\n" +
                 "   - 50GB Storage\n" +
                 "   - Priority Support\n" +
                 "   - 25 Users\n\n" +
-                "🏢 *Enterprise Plan:* $49.99/month\n" +
+                " *Enterprise Plan:* $49.99/month\n" +
                 "   - Unlimited Storage\n" +
                 "   - 24/7 Support\n" +
                 "   - Unlimited Users\n\n" +
@@ -229,7 +229,7 @@ public class ChatBotService {
 
     private String getSupportResponse() {
         return "I'm sorry you're experiencing issues. Let me help you!\n\n" +
-                "🔧 *Common solutions:*\n" +
+                " *Common solutions:*\n" +
                 "• Check your internet connection\n" +
                 "• Clear browser cache\n" +
                 "• Restart the application\n\n" +
@@ -238,10 +238,10 @@ public class ChatBotService {
 
     private String getContactResponse() {
         return "You can contact our support team through:\n\n" +
-                "📞 *Phone:* 1-800-123-4567\n" +
-                "📧 *Email:* support@company.com\n" +
-                "💬 *Live Chat:* Available 24/7\n" +
-                "🕒 *Hours:* Mon-Sun, 9AM-9PM EST\n\n" +
+                " *Phone:* 1-800-123-4567\n" +
+                " *Email:* support@company.com\n" +
+                " *Live Chat:* Available 24/7\n" +
+                " *Hours:* Mon-Sun, 9AM-9PM EST\n\n" +
                 "Would you like me to connect you with a human agent?";
     }
 
@@ -258,10 +258,10 @@ public class ChatBotService {
     // Quick Reply Methods
     private List<QuickReply> getMainQuickReplies() {
         return Arrays.asList(
-                createQuickReply("💰 Pricing", "pricing"),
-                createQuickReply("🛠️ Support", "support"),
-                createQuickReply("📞 Contact", "contact"),
-                createQuickReply("ℹ️ Features", "features")
+                createQuickReply(" Pricing", "pricing"),
+                createQuickReply(" Support", "support"),
+                createQuickReply(" Contact", "contact"),
+                createQuickReply(" Features", "features")
         );
     }
 

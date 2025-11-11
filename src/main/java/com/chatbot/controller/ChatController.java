@@ -54,13 +54,13 @@ public class ChatController {
     @GetMapping("/health")
     public ResponseEntity<String> healthCheck() {
         log.info("Health check endpoint called");
-        return ResponseEntity.ok("✅ ChatBot Service is running smoothly! " +
+        return ResponseEntity.ok("ChatBot Service is running smoothly! " +
                 "Time: " + java.time.LocalDateTime.now());
     }
 
     @GetMapping("/test")
     public ResponseEntity<String> testEndpoint() {
-        return ResponseEntity.ok("🚀 Customer ChatBot API is working! " +
+        return ResponseEntity.ok("Customer ChatBot API is working! " +
                 "Use POST /api/v1/chat/send to send messages.");
     }
 }
