@@ -21,7 +21,6 @@ public class ChatBotService {
 
     private final ChatSessionRepository chatSessionRepository;
     private final ChatMessageRepository chatMessageRepository;
-    private final KafkaProducerService kafkaProducerService;
 
     // Keyword patterns for intent recognition
     private static final Map<String, Pattern> KEYWORD_PATTERNS = new HashMap<>();
@@ -47,42 +46,12 @@ public class ChatBotService {
             // Save user message
             saveUserMessage(session.getSessionId(), request.getMessage());
 
-            //  KAFKA: Send user message to Kafka
-            kafkaProducerService.sendChatMessage(
-                    session.getSessionId(),
-                    request.getMessage(),
-                    "USER",
-                    request.getUserId(),
-                    request.getUserName(),
-                    "TEXT"
-            );
 
             // Process and generate bot response
             ChatResponse response = generateBotResponse(session, request.getMessage());
 
             // Save bot response
             saveBotMessage(session.getSessionId(), response.getBotResponse());
-
-            // KAFKA: Send bot response to Kafka
-            kafkaProducerService.sendChatMessage(
-                    session.getSessionId(),
-                    response.getBotResponse(),
-                    "BOT",
-                    request.getUserId(),
-                    request.getUserName(),
-                    "TEXT"
-            );
-
-            // KAFKA: Send analytics event
-            String intent = detectIntent(request.getMessage());
-            kafkaProducerService.sendAnalyticsEvent(
-                    session.getSessionId(),
-                    "MESSAGE_PROCESSED",
-                    "TEXT",
-                    request.getUserId(),
-                    intent,
-                    getMessageCount(session.getSessionId())
-            );
 
             log.info("Message processed successfully for session: {}", request.getSessionId());
             return response;
@@ -112,23 +81,6 @@ public class ChatBotService {
         saveBotMessage(savedSession.getSessionId(),
                 "Hello! I'm your customer support assistant. How can I help you today?");
 
-        // KAFKA: Send session created event
-        kafkaProducerService.sendSessionEvent(
-                savedSession.getSessionId(),
-                request.getUserId(),
-                request.getUserName(),
-                "ACTIVE"
-        );
-
-        // KAFKA: Send analytics event
-        kafkaProducerService.sendAnalyticsEvent(
-                savedSession.getSessionId(),
-                "SESSION_STARTED",
-                "SYSTEM",
-                request.getUserId(),
-                "new_session",
-                0
-        );
 
         log.info("Created new chat session: {}", savedSession.getSessionId());
         return savedSession;
@@ -194,13 +146,6 @@ public class ChatBotService {
             chatSessionRepository.save(session);
             response.setStatus("COMPLETED");
 
-            // KAFKA: Send session ended event
-            kafkaProducerService.sendSessionEvent(
-                    session.getSessionId(),
-                    session.getUserId(),
-                    session.getUserName(),
-                    "COMPLETED"
-            );
         }
         else {
             response.setBotResponse(getDefaultResponse(userMessage));
@@ -337,18 +282,5 @@ public class ChatBotService {
         return chatSessionRepository.findByStatus(ChatSession.ChatStatus.ACTIVE);
     }
 
-    // Helper methods for Kafka
-    private String detectIntent(String message) {
-        String lowerMessage = message.toLowerCase();
-        for (Map.Entry<String, Pattern> entry : KEYWORD_PATTERNS.entrySet()) {
-            if (entry.getValue().matcher(lowerMessage).find()) {
-                return entry.getKey();
-            }
-        }
-        return "unknown";
-    }
 
-    private int getMessageCount(String sessionId) {
-        return chatMessageRepository.findBySessionIdOrderByTimestampAsc(sessionId).size();
-    }
 }
